@@ -52,7 +52,7 @@ from typing import Any
 
 PROTOCOL_VERSION = "2024-11-05"
 SERVER_NAME = "bisect"
-SERVER_VERSION = "0.2.2"
+SERVER_VERSION = "0.3.0"
 
 PANEL_URL = "https://games.bisecthosting.com"
 KEYCHAIN_SERVICE = "bisect-game-servers"
@@ -504,12 +504,14 @@ TOOLS: list[dict] = [
             "required": ["api_key"],
             "additionalProperties": False,
         },
+        "annotations": {"title": "Store BisectHosting API credentials", "openWorldHint": False},
         "handler": tool_store_credentials,
     },
     {
         "name": "list_servers",
         "description": "List all game servers the API key can see on the BisectHosting panel. Returns server identifiers, names, and current instance (game) for each.",
         "inputSchema": {"type": "object", "properties": {}, "additionalProperties": False},
+        "annotations": {"title": "List game servers", "readOnlyHint": True, "openWorldHint": True},
         "handler": tool_list_servers,
     },
     {
@@ -521,6 +523,7 @@ TOOLS: list[dict] = [
             "required": ["server_id"],
             "additionalProperties": False,
         },
+        "annotations": {"title": "Get server details", "readOnlyHint": True, "openWorldHint": True},
         "handler": tool_get_server,
     },
     {
@@ -532,6 +535,7 @@ TOOLS: list[dict] = [
             "required": ["server_id"],
             "additionalProperties": False,
         },
+        "annotations": {"title": "Get server resource usage", "readOnlyHint": True, "openWorldHint": True},
         "handler": tool_get_server_resources,
     },
     {
@@ -546,6 +550,7 @@ TOOLS: list[dict] = [
             "required": ["server_id", "signal"],
             "additionalProperties": False,
         },
+        "annotations": {"title": "Send power signal (start/stop/restart/kill)", "destructiveHint": True, "openWorldHint": True},
         "handler": tool_power_action,
     },
     {
@@ -560,6 +565,7 @@ TOOLS: list[dict] = [
             "required": ["server_id", "command"],
             "additionalProperties": False,
         },
+        "annotations": {"title": "Send console command", "openWorldHint": True},
         "handler": tool_send_command,
     },
     {
@@ -574,6 +580,7 @@ TOOLS: list[dict] = [
             "required": ["server_id"],
             "additionalProperties": False,
         },
+        "annotations": {"title": "List server files", "readOnlyHint": True, "openWorldHint": True},
         "handler": tool_list_files,
     },
     {
@@ -590,6 +597,7 @@ TOOLS: list[dict] = [
             "required": ["server_id", "file"],
             "additionalProperties": False,
         },
+        "annotations": {"title": "Read server file", "readOnlyHint": True, "openWorldHint": True},
         "handler": tool_read_file,
     },
     {
@@ -605,6 +613,7 @@ TOOLS: list[dict] = [
             "required": ["server_id", "file", "content"],
             "additionalProperties": False,
         },
+        "annotations": {"title": "Write server file", "idempotentHint": True, "openWorldHint": True},
         "handler": tool_write_file,
     },
     {
@@ -621,6 +630,7 @@ TOOLS: list[dict] = [
             "required": ["server_id", "from", "to"],
             "additionalProperties": False,
         },
+        "annotations": {"title": "Rename or move file", "openWorldHint": True},
         "handler": tool_rename_file,
     },
     {
@@ -642,6 +652,7 @@ TOOLS: list[dict] = [
             "required": ["server_id", "files"],
             "additionalProperties": False,
         },
+        "annotations": {"title": "Delete files (destructive)", "destructiveHint": True, "openWorldHint": True},
         "handler": tool_delete_files,
     },
     {
@@ -657,6 +668,7 @@ TOOLS: list[dict] = [
             "required": ["server_id", "name"],
             "additionalProperties": False,
         },
+        "annotations": {"title": "Create folder", "openWorldHint": True},
         "handler": tool_create_folder,
     },
     {
@@ -668,6 +680,7 @@ TOOLS: list[dict] = [
             "required": ["server_id"],
             "additionalProperties": False,
         },
+        "annotations": {"title": "List backups", "readOnlyHint": True, "openWorldHint": True},
         "handler": tool_list_backups,
     },
     {
@@ -683,6 +696,7 @@ TOOLS: list[dict] = [
             "required": ["server_id"],
             "additionalProperties": False,
         },
+        "annotations": {"title": "Create backup", "openWorldHint": True},
         "handler": tool_create_backup,
     },
     {
@@ -697,6 +711,7 @@ TOOLS: list[dict] = [
             "required": ["server_id", "backup_id"],
             "additionalProperties": False,
         },
+        "annotations": {"title": "Get backup download URL", "readOnlyHint": True, "openWorldHint": True},
         "handler": tool_get_backup_download_url,
     },
     {
@@ -715,6 +730,7 @@ TOOLS: list[dict] = [
             "required": ["server_id", "file", "pattern"],
             "additionalProperties": False,
         },
+        "annotations": {"title": "Regex-search file contents", "readOnlyHint": True, "openWorldHint": True},
         "handler": tool_search_file_text,
     },
 ]
@@ -787,8 +803,12 @@ def handle(msg: dict) -> dict | None:
             return None
 
         if method == "tools/list":
+            # Forward only protocol-relevant fields. "annotations" is optional
+            # and lets clients distinguish read-only / destructive tools so the
+            # user can bulk-approve safe ones.
+            public_keys = ("name", "description", "inputSchema", "annotations")
             tools_public = [
-                {"name": t["name"], "description": t["description"], "inputSchema": t["inputSchema"]}
+                {k: t[k] for k in public_keys if k in t}
                 for t in TOOLS
             ]
             return _make_result(req_id, {"tools": tools_public})
