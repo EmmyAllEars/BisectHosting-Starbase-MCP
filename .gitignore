@@ -11,6 +11,8 @@ env/
 .mypy_cache/
 .ruff_cache/
 *.egg-info/
+dist/
+build/
 
 # Credentials — never commit these
 credentials.json
