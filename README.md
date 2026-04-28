@@ -69,6 +69,7 @@ Checked in order; first non-empty wins:
 | `list_backups` | List backups |
 | `create_backup` | Create a new backup |
 | `get_backup_download_url` | Signed download URL for a backup |
+| `get_file_download_url` | Signed download URL for a single file (binary-safe; pair with curl) |
 | `search_file_text` | Regex-search a file (great for log scanning) |
 
 ## Notes
