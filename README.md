@@ -16,17 +16,39 @@ Lets Claude (or any MCP client) inspect and control your game servers: power act
 
 ## Install
 
-Clone anywhere:
+### Recommended: on-demand via `uvx` (no clone needed)
+
+Add to your MCP config (e.g. `~/.claude/.mcp.json` or `claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "bisect": {
+      "command": "uvx",
+      "args": [
+        "--refresh",
+        "--from",
+        "git+https://github.com/EmmyAllEars/BisectHosting-Starbase-MCP",
+        "bisect-mcp"
+      ]
+    }
+  }
+}
+```
+
+`--refresh` makes `uvx` pull the latest commit on every server start (~1-2s of network) so updates are hands-off — just `git push` and the next launch picks them up. Drop `--refresh` to cache forever, or pin to a tag with `git+https://github.com/EmmyAllEars/BisectHosting-Starbase-MCP@v0.4.0`.
+
+Requires [`uv`](https://docs.astral.sh/uv/) on PATH (`brew install uv` on macOS).
+
+Restart the client. The first time you call a tool, run `store_credentials` with your `ptlc_...` API key — it'll be saved to the macOS Keychain (service: `bisect-game-servers`, account: `api_key`).
+
+### Alternative: clone and run locally (for development)
 
 ```bash
 git clone https://github.com/EmmyAllEars/BisectHosting-Starbase-MCP.git
 ```
 
-Then register it with your MCP client.
-
-### Claude Code / Claude Desktop
-
-Add to your MCP config (e.g. `~/.claude/.mcp.json` or `claude_desktop_config.json`):
+Then point your MCP client at the local file:
 
 ```json
 {
@@ -38,8 +60,6 @@ Add to your MCP config (e.g. `~/.claude/.mcp.json` or `claude_desktop_config.jso
   }
 }
 ```
-
-Restart the client. The first time you call a tool, run `store_credentials` with your `ptlc_...` API key — it'll be saved to the macOS Keychain (service: `bisect-game-servers`, account: `api_key`).
 
 ## Credential resolution
 

@@ -52,7 +52,7 @@ from typing import Any
 
 PROTOCOL_VERSION = "2024-11-05"
 SERVER_NAME = "bisect"
-SERVER_VERSION = "0.3.0"
+SERVER_VERSION = "0.4.0"
 
 PANEL_URL = "https://games.bisecthosting.com"
 KEYCHAIN_SERVICE = "bisect-game-servers"

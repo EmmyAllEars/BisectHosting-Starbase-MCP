@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bisect-hosting-starbase-mcp"
+version = "0.4.0"
+description = "MCP server for the BisectHosting Starbase (Pterodactyl) game-server panel."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "Emmy Ringuette" }]
+keywords = ["mcp", "bisecthosting", "pterodactyl", "starbase", "game-server"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux",
+    "Environment :: Console",
+]
+dependencies = []
+
+[project.scripts]
+bisect-mcp = "bisect_mcp:main"
+
+[project.urls]
+Repository = "https://github.com/EmmyAllEars/BisectHosting-Starbase-MCP"
+Issues = "https://github.com/EmmyAllEars/BisectHosting-Starbase-MCP/issues"
+
+[tool.setuptools]
+py-modules = ["bisect_mcp"]
