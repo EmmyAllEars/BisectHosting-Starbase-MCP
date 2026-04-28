@@ -389,6 +389,16 @@ def tool_get_backup_download_url(args: dict) -> Any:
     return _json_request("GET", f"/api/client/servers/{sid}/backups/{backup}/download")
 
 
+def tool_get_file_download_url(args: dict) -> Any:
+    sid = args["server_id"]
+    file_path = args["file"]
+    return _json_request(
+        "GET",
+        f"/api/client/servers/{sid}/files/download",
+        query={"file": file_path},
+    )
+
+
 def tool_search_file_text(args: dict) -> Any:
     """Read a server file and regex-search it client-side.
 
@@ -713,6 +723,21 @@ TOOLS: list[dict] = [
         },
         "annotations": {"title": "Get backup download URL", "readOnlyHint": True, "openWorldHint": True},
         "handler": tool_get_backup_download_url,
+    },
+    {
+        "name": "get_file_download_url",
+        "description": "Get a signed download URL for a single file on the server. URL is short-lived. Use this for binary files (databases, save files, images) where read_file would corrupt the bytes — fetch the URL with curl/fetch outside the MCP. For text files, prefer read_file.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "server_id": {"type": "string"},
+                "file": {"type": "string", "description": "Absolute path from the server root, e.g. '/WS/Saved/Worlds/Dedicated/world.db'"},
+            },
+            "required": ["server_id", "file"],
+            "additionalProperties": False,
+        },
+        "annotations": {"title": "Get file download URL", "readOnlyHint": True, "openWorldHint": True},
+        "handler": tool_get_file_download_url,
     },
     {
         "name": "search_file_text",
